@@ -14,7 +14,7 @@ on:
 permissions:
   contents: read
   issues: write
-  pull-requests: read
+  pull-requests: write
 
 concurrency:
   group: laboratorium-${{ github.event.pull_request.number || github.ref }}
@@ -31,7 +31,10 @@ jobs:
         with:
           retries: 3
           script: |
-            const repo = context.repo;
+            const repo = {
+              ...context.repo,
+              headers: { 'X-GitHub-Api-Version': '2026-03-10' }
+            };
             const titles = [2, 3, 4, 5, 6, 7].map(n => `Laboratorium ${n}`);
             const listMilestones = () => github.paginate(
               github.rest.issues.listMilestones,
