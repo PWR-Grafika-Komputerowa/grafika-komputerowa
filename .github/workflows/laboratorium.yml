@@ -9,8 +9,6 @@ on:
     paths: ['.github/workflows/laboratorium.yml']
   workflow_dispatch:
 
-# Workflow obsługuje wyłącznie metadane PR. Nie pobiera ani nie uruchamia
-# kodu studentów; tytuły PR są odczytywane jako dane z API.
 permissions:
   contents: read
   issues: write
