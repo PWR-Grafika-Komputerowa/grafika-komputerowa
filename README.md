@@ -20,7 +20,7 @@ To właśnie tutaj będziecie przesyłać rozwiązania zadań laboratoryjnych. W
 
    Na przykład: `Laboratorium 2 - Jan Kowalski`. W miejscu `X` wpisz numer laboratorium od 2 do 7.
 
-5. **Poczekaj na automatyczne oznaczenie PR** – GitHub Actions przypisze odpowiedni **Milestone**, np. `Laboratorium 2`, a GitHub doda prowadzącą **@Natuuduck** jako reviewerkę dzięki plikowi CODEOWNERS. Nie musisz wybierać ich ręcznie.
+5. **Poczekaj na automatyczne oznaczenie PR** – GitHub Actions przypisze odpowiedni **Milestone**, np. `Laboratorium 2`, a GitHub doda prowadzącą jako reviewerkę dzięki plikowi CODEOWNERS. Nie musisz wybierać ich ręcznie.
 
    Jeśli PR jest oznaczony jako **Draft**, kliknij **Ready for review**, gdy rozwiązanie będzie gotowe. Dopiero wtedy prowadząca otrzyma prośbę o review.
 
