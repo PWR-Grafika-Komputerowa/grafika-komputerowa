@@ -1,0 +1,104 @@
+name: Przypisz laboratorium do PR
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, edited, reopened, ready_for_review]
+  push:
+    branches: [main]
+    paths: ['.github/workflows/laboratorium.yml']
+  workflow_dispatch:
+
+# Workflow obsługuje wyłącznie metadane PR. Nie pobiera ani nie uruchamia
+# kodu studentów; tytuły PR są odczytywane jako dane z API.
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+concurrency:
+  group: laboratorium-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  milestone:
+    if: github.repository == 'PWR-Grafika-Komputerowa/grafika-komputerowa'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Utwórz milestone i przypisz go na podstawie tytułu PR
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          retries: 3
+          script: |
+            const repo = context.repo;
+            const titles = [2, 3, 4, 5, 6, 7].map(n => `Laboratorium ${n}`);
+            const listMilestones = () => github.paginate(
+              github.rest.issues.listMilestones,
+              { ...repo, state: 'all', per_page: 100 }
+            );
+            let milestones = await listMilestones();
+
+            for (const title of titles) {
+              if (milestones.some(m => m.title === title)) continue;
+              try {
+                const { data } = await github.rest.issues.createMilestone({
+                  ...repo,
+                  title,
+                  description: `Rozwiązania zadań: ${title}.`,
+                  state: 'open'
+                });
+                milestones.push(data);
+                core.info(`Utworzono milestone: ${title}`);
+              } catch (error) {
+                // Inny PR mógł w tym samym czasie utworzyć ten milestone.
+                if (error.status !== 422) throw error;
+                milestones = await listMilestones();
+                if (!milestones.some(m => m.title === title)) throw error;
+              }
+            }
+
+            const pullRequests = context.payload.pull_request
+              ? [context.payload.pull_request]
+              : await github.paginate(github.rest.pulls.list, {
+                  ...repo, state: 'open', base: 'main', per_page: 100
+                });
+
+            for (const candidate of pullRequests) {
+              // Pobierz aktualny tytuł, także po kilku szybkich edycjach PR.
+              const { data: pr } = await github.rest.pulls.get({
+                ...repo, pull_number: candidate.number
+              });
+              if (pr.state !== 'open' || pr.base.ref !== 'main') continue;
+
+              const match = pr.title.trim().match(
+                /^Laboratorium\s+([2-7])\s*[-–—]\s*\S[^\r\n]*$/iu
+              );
+              if (!match) {
+                if (context.eventName === 'pull_request_target') {
+                  // Nie pozostawiaj błędnego oznaczenia po zmianie tytułu.
+                  if (titles.includes(pr.milestone?.title)) {
+                    await github.rest.issues.update({
+                      ...repo, issue_number: pr.number, milestone: null
+                    });
+                  }
+                  core.setFailed(
+                    'Ustaw tytuł PR: Laboratorium X - Imię Nazwisko (X od 2 do 7).'
+                  );
+                } else {
+                  core.info(`Pomijam PR #${pr.number}: nie ma tytułu laboratorium.`);
+                }
+                continue;
+              }
+
+              const title = `Laboratorium ${match[1]}`;
+              const milestone = milestones.find(m => m.title === title);
+              if (pr.milestone?.number !== milestone.number) {
+                await github.rest.issues.update({
+                  ...repo,
+                  issue_number: pr.number,
+                  milestone: milestone.number
+                });
+              }
+              core.info(`PR #${pr.number}: ${title}`);
+            }

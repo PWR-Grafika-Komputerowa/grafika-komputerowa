@@ -18,13 +18,13 @@ To właśnie tutaj będziecie przesyłać rozwiązania zadań laboratoryjnych. W
 
    `Laboratorium X - Imię Nazwisko`
 
-5. **Przypisz Milestone** – w panelu po prawej stronie Pull Requesta znajdź sekcję **Milestone** i wybierz odpowiednie laboratorium, np. `Laboratorium 2`.
+   Na przykład: `Laboratorium 2 - Jan Kowalski`. W miejscu `X` wpisz numer laboratorium od 2 do 7.
 
-6. **Dodaj Prowadzącego jako reviewera**
+5. **Poczekaj na automatyczne oznaczenie PR** – GitHub Actions przypisze odpowiedni **Milestone**, np. `Laboratorium 2`, a GitHub doda prowadzącą **@Natuuduck** jako reviewerkę dzięki plikowi CODEOWNERS. Nie musisz wybierać ich ręcznie.
 
-> ⚠️ **Ważne:** Każde laboratorium powinno mieć osobny Pull Request z przypisanym odpowiednim Milestone. Jeśli nie możesz wybrać Milestone, zgłoś to prowadzącej.
->
-> ##
+   Jeśli PR jest oznaczony jako **Draft**, kliknij **Ready for review**, gdy rozwiązanie będzie gotowe. Dopiero wtedy prowadząca otrzyma prośbę o review.
+
+> ⚠️ **Ważne:** Każde laboratorium powinno mieć osobny Pull Request. Poprawny tytuł jest wymagany do automatycznego przypisania Milestone. Jeśli oznaczenie się nie pojawi, sprawdź wynik workflow w zakładce **Actions** i zgłoś problem prowadzącej na Discordzie.
 
 ## Potrzebujesz pomocy?
 
