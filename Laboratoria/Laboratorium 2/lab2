@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+import os
+import sys
+import random
+
+from glfw.GLFW import *
+from OpenGL.GL import *
+from OpenGL.GLU import *
+
+ZADANIE = 4
+
+
+def zadanie_1():
+    glBegin(GL_TRIANGLES)
+    glColor3f(1.0, 0.5, 0.0)
+    glVertex2f(0.0, 50.0)
+    glColor3f(0.0, 1.0, 1.0)
+    glVertex2f(50.0, -50.0)
+    glColor3f(0.5, 0.0, 1.0)
+    glVertex2f(-50.0, -50.0)
+    glEnd()
+
+
+def draw_rectangle_triangles(x, y, a, b, d1=0.0, d2=0.0):
+
+    scale_a = 1.0 + random.uniform(-1.0, 1.0) * d1
+    scale_b = 1.0 + random.uniform(-1.0, 1.0) * d2
+
+    a_scaled = scale_a * a
+    b_scaled = scale_b * b
+
+    glBegin(GL_TRIANGLES)
+    
+    glColor3f(random.random(), random.random(), random.random())
+    glVertex2f(x, y)
+    glVertex2f(x + a_scaled, y)
+    glVertex2f(x + a_scaled, y + b_scaled)
+
+    glColor3f(random.random(), random.random(), random.random())
+    glVertex2f(x, y)
+    glVertex2f(x, y + b_scaled)
+    glVertex2f(x + a_scaled, y + b_scaled)
+    
+    glEnd()
+
+def zadanie_4(x, y, a, b, level):
+    if level == 0:
+        draw_rectangle_triangles(x, y, a, b, d1=0.0, d2=0.0)
+    else:
+        new_a = a / 3.0
+        new_b = b / 3.0
+
+        zadanie_4(x, y, new_a, new_b, level - 1)
+        zadanie_4(x + new_a, y, new_a, new_b, level - 1)
+        zadanie_4(x + 2 * new_a, y, new_a, new_b, level - 1)
+
+        zadanie_4(x, y + new_b, new_a, new_b, level - 1)
+        zadanie_4(x + 2 * new_a, y + new_b, new_a, new_b, level - 1)
+
+        zadanie_4(x, y + 2 * new_b, new_a, new_b, level - 1)
+        zadanie_4(x + new_a, y + 2 * new_b, new_a, new_b, level - 1)
+        zadanie_4(x + 2 * new_a, y + 2 * new_b, new_a, new_b, level - 1)
+
+
+def zadanie_5_sierpinski_iteracyjnie(x_start, y_start, rozmiar, stopien):
+    podzial = 3 ** stopien
+    krok = rozmiar / podzial
+
+    for i in range(podzial):
+        for j in range(podzial):
+            pusty = False
+            temp_i, temp_j = i, j
+
+            for k in range(stopien):
+                if temp_i % 3 == 1 and temp_j % 3 == 1:
+                    pusty = True
+                    break
+                temp_i //= 3
+                temp_j //= 3
+
+            if not pusty:
+                draw_rectangle_triangles(x_start + i * krok, y_start + j * krok, krok, krok, 0.0, 0.0)
+
+
+def startup():
+    update_viewport(None, 400, 400)
+    glClearColor(0.5, 0.5, 0.5, 1.0)
+
+
+def shutdown():
+    pass
+
+
+def render(time):
+    glClear(GL_COLOR_BUFFER_BIT)
+
+    interval_seed = int(time // 2)
+    random.seed(interval_seed)
+
+    if ZADANIE == 1:
+        zadanie_1()
+    elif ZADANIE == 2:
+        draw_rectangle_triangles(-50.0, -25.0, 100.0, 50.0, 0.0, 0.0)
+    elif ZADANIE == 3:
+        draw_rectangle_triangles(-70.0, -25.0, 100.0, 50.0, 0.5, 0.2)
+    elif ZADANIE == 4:
+        zadanie_4(-80.0, -50.0, 160.0, 100.0, 3)
+    elif ZADANIE == 5:
+        zadanie_5_sierpinski_iteracyjnie(-80.0, -80.0, 160.0, 3)
+
+    glFlush()
+
+
+def update_viewport(window, width, height):
+    if width == 0:
+        width = 1
+    if height == 0:
+        height = 1
+    aspect_ratio = width / height
+
+    glMatrixMode(GL_PROJECTION)
+    glViewport(0, 0, width, height)
+    glLoadIdentity()
+
+    if width <= height:
+        glOrtho(-100.0, 100.0, -100.0 / aspect_ratio, 100.0 / aspect_ratio, 1.0, -1.0)
+    else:
+        glOrtho(-100.0 * aspect_ratio, 100.0 * aspect_ratio, -100.0, 100.0, 1.0, -1.0)
+
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+
+
+def main():
+    if not glfwInit():
+        sys.exit(-1)
+
+    window = glfwCreateWindow(600, 600, "Lab 2", None, None)
+    if not window:
+        glfwTerminate()
+        sys.exit(-1)
+
+    glfwMakeContextCurrent(window)
+    glfwSetFramebufferSizeCallback(window, update_viewport)
+    glfwSwapInterval(1)
+
+    startup()
+    while not glfwWindowShouldClose(window):
+        render(glfwGetTime())
+        glfwSwapBuffers(window)
+        glfwPollEvents()
+    shutdown()
+
+    glfwTerminate()
+
+
+if __name__ == '__main__':
+    main()
