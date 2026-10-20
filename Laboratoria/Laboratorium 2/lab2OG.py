@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import random
 
 from glfw.GLFW import *
 
@@ -15,26 +16,47 @@ def startup():
 def shutdown():
     pass
 
+def rectangle(x, y, a, b, r1, g1, b1, r2, g2, b2, d = 0.0):
+    Ax = x - a/2 + d
+    Ay = y - b/2
+    Bx = x + a/2
+    By = y - b/2
+    Cx = x + a/2 - d
+    Cy = y + b/2
+    Dx = x - a/2 - d
+    Dy = y + b/2 + d   
+
+    glColor3f(r1, g1, b1)
+    glBegin(GL_TRIANGLES)
+    glVertex2f(Ax, Ay)
+    glVertex2f(Bx, By)
+    glVertex2f(Cx, Cy)
+    glEnd()
+    
+    glColor3f(r2, g2, b2)
+    glBegin(GL_TRIANGLES)
+    glVertex2f(Ax, Ay)
+    glVertex2f(Dx, Dy)
+    glVertex2f(Cx, Cy)
+    glEnd()
 
 def render(time):
     glClear(GL_COLOR_BUFFER_BIT)
 
-    glColor3f(0.0, 1.0, 0.0)
     glBegin(GL_TRIANGLES)
-    glVertex2f(0.0, 0.0)
-    glVertex2f(0.0, 50.0)
-    glVertex2f(50.0, 0.0)
-    glEnd()
-
     glColor3f(1.0, 0.0, 0.0)
-    glBegin(GL_TRIANGLES)
-    glVertex2f(0.0, 0.0)
-    glVertex2f(0.0, 50.0)
-    glVertex2f(-50.0, 0.0)
+    glVertex2f(0.0, 43.3)
+    glColor3f(0.0, 1.0, 0.0)
+    glVertex2f(-50.0, -43.3)
+    glColor3f(0.0, 0.0, 1.0)
+    glVertex2f(50.0, -43.3)
     glEnd()
 
     glFlush()
-
+    
+    glClear(GL_COLOR_BUFFER_BIT)
+    rectangle(0.0, 0.0, 50, 80, random.random(), random.random(), random.random(), random.random(), random.random(), random.random(), 12.5)
+    glFlush()
 
 def update_viewport(window, width, height):
     if width == 0:
@@ -61,7 +83,8 @@ def update_viewport(window, width, height):
 def main():
     if not glfwInit():
         sys.exit(-1)
-
+    
+    random.seed()
     window = glfwCreateWindow(400, 400, __file__, None, None)
     if not window:
         glfwTerminate()
