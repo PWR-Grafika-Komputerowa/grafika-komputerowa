@@ -32,8 +32,8 @@ def render(time):
     
     #sierpinski(0, 0, 200, 200, _s)
     
-    plasma_start(0,0,200,200,_s)
-    
+    #plasma_start(0,0,200,200,_s)
+    plasma_it(2)
     tm.sleep(1)
     _s += 1
     #if _frame >= 121:
@@ -109,7 +109,6 @@ def plasma_start(x, y, a, b, s):
     
     plasma(c1,c2,c3,c4,a/2, b/2,s)
     
-    
 def corner(cxy, cx, cy):
     return (1 - 2 * W(cxy))*cxy  + W(cx)*cx + W(cy)*cy
    
@@ -118,6 +117,7 @@ def center(cc, c1,c2,c3,c4):
     
 def W(x):
     return 0.53474/(1 + pow(2.71,((x-80)/30)))
+    
 def Wc(x):
     return 0.5*W(x)
     
@@ -155,8 +155,45 @@ def plasma(c1,c2,c3,c4,a,b,s):
     plasma(c12,c2,cc,c24,a/2,b/2,s)
     plasma(c13,cc,c3,c34,a/2,b/2,s)
     plasma(cc,c24,c34,c4,a/2,b/2,s)
+
+def plasma_tri(p1,p2,p3):
+    glBegin(GL_TRIANGLES)
+    glColor3f(p1.c, p1.c, p1.c)
+    glVertex2f(p1.x, p1.y)
+    glColor3f(p2.c, p2.c,p2.c)
+    glVertex2f(p2.x, p2.y)
+    glColor3f(p3.c, p3.c, p3.c)
+    glVertex2f(p3.x, p3.y)
+    glEnd()
     
+def plasma_it(s):
+    x = 0
+    y = 0
+    a = 100
+    b = 100
+    c1 = Point(x - a,y + b, random.random())
+    c2 = Point(x + a,y + b, random.random())
+    c3 = Point(x - a,y - b, random.random())
+    c4 = Point(x + a,y - b, random.random())
     
+    plasma_tri(c1,c2,c3)
+    plasma_tri(c4,c2,c3)
+    
+    for i in range(0, s):
+        j = 0
+        w = 1
+        while  j < w:
+            c12 = Point(x, y + b, corner(random.random(), c1.c,  c2.c))
+            c13 = Point(x - a, y, corner(random.random(), c1.c,  c3.c))
+            c24 = Point(, (c2.y + c4.y)/2, corner(random.random(), c2.c,  c4.c))
+            c34 = Point((c3.x + c4.x)/2, (c3.y + c4.y)/2, corner(random.random(), c3.c,  c4.c))
+            cc  = Point((c1.x + c4.x)/2, (c1.y + c4.y)/2, center(random.random(), c1.c,  c2.c,  c3.c, c4.c))
+            plasma_tri(c12,c13,cc)
+            plasma_tri(cc,c24,c34)
+            j+=1
+        w*=2
+        a/=2
+        b/=2
 
 def update_viewport(window, width, height):
     if width == 0:
