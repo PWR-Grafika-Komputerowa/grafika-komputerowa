@@ -47,9 +47,9 @@ def render(time):
     glLoadIdentity()
     spin(time * 180 / 3.1415)
     axes()
-    #generate_jajo_wireframe(N)
+    generate_jajo_wireframe(N)
     #generate_jajo_triangles(N)
-    generate_jajo_trianglestrip(N)
+    #generate_jajo_trianglestrip(N)
     glFlush()
 
 
@@ -132,7 +132,6 @@ def generate_jajo_trianglestrip(N):
 
     glShadeModel(GL_FLAT)
 
-    # Osobny pasek trójkątów dla każdej pary sąsiednich rzędów siatki.
     for i in range(N - 1):
         strip = []
         glBegin(GL_TRIANGLE_STRIP)
@@ -141,7 +140,6 @@ def generate_jajo_trianglestrip(N):
             for vertex in (jajo[i][j], jajo[i + 1][j]):
                 strip.append(vertex)
 
-                # Ostatni wierzchołek wyznacza kolor płasko cieniowanego trójkąta.
                 if len(strip) >= 3:
                     glColor3f(*_random_triangle_color(*strip[-3:]))
 
