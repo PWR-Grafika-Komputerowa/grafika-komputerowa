@@ -11,7 +11,7 @@ from math import *
 r = random.random()
 g = random.random()
 b = random.random()
-iteration 
+iteration =0
 param = [0] * 5
 COLOR = (r,g,b)
 WHITE = (1.0,1.0,1.0)
