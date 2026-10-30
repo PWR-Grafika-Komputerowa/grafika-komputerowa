@@ -70,9 +70,7 @@ def render(time):
 
     # glColor3f(1.0, 1.0, 1.0)
 
-    # glBegin(GL_TRIANGLES)
-    # glBegin(GL_LINES)
-    # glBegin(GL_POINTS)
+
     for i in range (N-1):
         glBegin(GL_TRIANGLE_STRIP)
         for j in range(N):
@@ -81,34 +79,7 @@ def render(time):
             glVertex3fv(tab[i][j])    
             glColor3fv(colors[i+1][j])
             glVertex3fv(tab[i+1][j])  
-
-            # trojkaty i N-1, j N-1
-            # glColor3fv(colors[i][j])  
-            # glVertex3fv(tab[i][j]) 
-            # glColor3fv(colors[i+1][j])
-            # glVertex3fv(tab[i+1][j])
-            # glColor3fv(colors[i][j+1])
-            # glVertex3fv(tab[i][j+1])        
-
-            # #dopelnienie
-            # glColor3fv(colors[i+1][j])
-            # glVertex3fv(tab[i+1][j])
-            # glColor3fv(colors[i][j+1])
-            # glVertex3fv(tab[i][j+1])
-            # glColor3fv(colors[i+1][j+1])
-            # glVertex3fv(tab[i+1][j+1])  
-        
-            #linie
-            # glColor3fv(colors[i][j])  
-            # glVertex3f(*tab[i][j])
-            # glColor3fv(colors[i][j+1])  
-            # glVertex3f(*tab[i][j+1])
-            
-            # glColor3fv(colors[i+1][j])  
-            # glVertex3f(*tab[i+1][j])
-            # glColor3fv(colors[i][j])  
-            # glVertex3f(*tab[i][j])
-            # glVertex3f(*tab[i][j])  
+ 
         glEnd()
 
     axes()
