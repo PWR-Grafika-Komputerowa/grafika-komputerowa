@@ -4,7 +4,7 @@ from glfw.GLFW import *
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from math import cos, sin, pi
+from math import cos, sin, pi,sqrt
 import numpy as np
 
 
@@ -15,7 +15,7 @@ N = 20
 tab = np.zeros((N, N, 3))
 vektors = np.zeros((N, N, 3))
 
-viewer = [0.0, 0.0, 10.0]
+viewer = [0.0, 0.0, 12.5]
 
 theta = 0.0
 phi=0.0
@@ -98,14 +98,17 @@ def egg():
             yu = 640 * pow(u, 3) - 960 * pow(u, 2) + 320 * u
             yv = 0
             zu = (-450 * pow(u, 4) + 900 * pow(u, 3) - 810 * pow(u, 2) + 360 * u - 45) * sin(pi * v)
-            zv = -pi * (90 * pow(u, 5) - 225 * pow(u, 4) + 270 * pow(u, 3) - 180 * pow(u, 2) + 45 * u) * cos(pi * v)    
-            vektors[i][j][0] = yu*zv 
-            vektors[i][j][1] = (zu * xv) - (zv * xu)
-            vektors[i][j][2] = 0 -( xv * yu)
-
-    norm = np.linalg.norm(vektors, axis=2, keepdims=True)
-    norm[norm == 0] = 1.0  
-    vektors = -(vektors / norm)
+            zv = -pi * (90 * pow(u, 5) - 225 * pow(u, 4) + 270 * pow(u, 3) - 180 * pow(u, 2) + 45 * u) * cos(pi * v)
+            a = yu*zv
+            b = (zu * xv) - (zv * xu)
+            c = 0 -( xv * yu)
+            d = sqrt(a*a+b*b+c*c)
+            if d==0:
+                d=1.0
+            vektors[i][j][0] = a/d
+            vektors[i][j][1] = b/d
+            vektors[i][j][2] = c/d
+    vektors = -vektors
     print (vektors)
 
 def shutdown():
@@ -125,10 +128,10 @@ def render(time):
     
             if right_mouse_button_pressed:
                 R += (delta_x  + delta_y) *  0.01
-    # if R < 0.0:
-    #     R = 0.0
-    # elif R > 10.0:
-    #     R = 10.0            
+    if R < 3.5:
+        R = 3.5
+    elif R > 10.0:
+        R = 10.0            
     if phi > 89.0:
         phi = 89.0
     elif phi < -89.0:
@@ -146,7 +149,7 @@ def render(time):
     light=[x,y,z,1.0]
     glLightfv(GL_LIGHT0, GL_POSITION, light)
 
-    glColor3f(0.0, 1.0, 0.0)
+    glColor3f(0.0, 1.0, 1.0)
 
     for i in range (N-1):
         glBegin(GL_TRIANGLE_STRIP)
@@ -157,17 +160,12 @@ def render(time):
             glVertex3fv(tab[i+1][j])  
  
         glEnd()
-    # quadric = gluNewQuadric()
-    # gluQuadricDrawStyle(quadric, GLU_FILL)
-    # gluSphere(quadric, 3.0, 10, 10)
-    # gluDeleteQuadric(quadric)
 
     glTranslate(x,y,z)
     quadric = gluNewQuadric()
     gluQuadricDrawStyle(quadric, GLU_LINE)
     gluSphere(quadric, 0.5, 6, 5)
     gluDeleteQuadric(quadric)
-
     glTranslate(-x,-y,-z)
 
     glFlush()
@@ -248,6 +246,7 @@ def mouse_motion_callback(window, x_pos, y_pos):
 def mouse_button_callback(window, button, action, mods):
     global left_mouse_button_pressed
     global right_mouse_button_pressed
+    # global R
 
     if button == GLFW_MOUSE_BUTTON_LEFT and action == GLFW_PRESS:
         left_mouse_button_pressed = 1
@@ -258,6 +257,7 @@ def mouse_button_callback(window, button, action, mods):
         right_mouse_button_pressed = 1
     else:
         right_mouse_button_pressed = 0
+    # print("R:",R)
 
 #endregion
 def main():
