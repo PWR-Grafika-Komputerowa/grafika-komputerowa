@@ -85,13 +85,11 @@ def rysujProstokat(x, y, a, b, d=0.0, wht=False):
 
 def rysujSierpinski(depth, x, y, a, b):
     if depth == 0:
+        rysujProstokat(x, y, a, b)
         return
 
-    w=a/3.0
-    h=b/3.0
-
-    #rysujProstokat(x+w, y+h, w, h, wht=True)
-    rysujProstokat(x+w, y+h, w, h, wht=False)
+    w = a / 3.0
+    h = b / 3.0
 
     n_depth = depth - 1
     for i in range(3):
@@ -101,15 +99,37 @@ def rysujSierpinski(depth, x, y, a, b):
             rysujSierpinski(n_depth, x + i * w, y + j * h, w, h)
 
 
+def rysujSierpinskiIteracyjnie(depth, x, y, a, b):
+    prostokaty = [(x, y, a, b)]
+
+    for _ in range(depth):
+        nowe_prostokaty = []
+        for px, py, pa, pb in prostokaty:
+            w = pa / 3.0
+            h = pb / 3.0
+            for i in range(3):
+                for j in range(3):
+                    if i == 1 and j == 1:
+                        continue
+                    nowe_prostokaty.append((px + i * w, py + j * h, w, h))
+        prostokaty = nowe_prostokaty
+
+    for px, py, pa, pb in prostokaty:
+        rysujProstokat(px, py, pa, pb)
+
+
 
 def render(time):
     glClear(GL_COLOR_BUFFER_BIT)
     
     #zadanie na 4.0
-    #rysujProstokat(-150, -100, 300, 200)
+    #rysujProstokat(-150, -100, 300, 200, d=0.0, wht=True)
 
     #zadanie na 4.5
-    rysujSierpinski(4, -200, -100, 400, 200)
+    #rysujSierpinski(4, -200, -100, 400, 200)
+
+    #zadanie na 5.0
+    rysujSierpinskiIteracyjnie(4, -200, -100, 400, 200)
 
     glFlush()
 
