@@ -1,20 +1,28 @@
 #!/usr/bin/env python3
 import sys
+import math
 
 from glfw.GLFW import *
-
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+eye_x = 0.0
+eye_y = 0.0
+eye_z = 10.0
 
-viewer = [0.0, 0.0, 10.0]
+yaw = -90.0
+pitch = 0.0
 
-theta = 0.0
-pix2angle = 1.0
+keys = {
+    GLFW_KEY_W: False,
+    GLFW_KEY_S: False,
+    GLFW_KEY_A: False,
+    GLFW_KEY_D: False
+}
 
 left_mouse_button_pressed = 0
 mouse_x_pos_old = 0
-delta_x = 0
+mouse_y_pos_old = 0
 
 
 def startup():
@@ -29,91 +37,99 @@ def shutdown():
 
 def axes():
     glBegin(GL_LINES)
-
     glColor3f(1.0, 0.0, 0.0)
     glVertex3f(-5.0, 0.0, 0.0)
     glVertex3f(5.0, 0.0, 0.0)
-
     glColor3f(0.0, 1.0, 0.0)
     glVertex3f(0.0, -5.0, 0.0)
     glVertex3f(0.0, 5.0, 0.0)
-
     glColor3f(0.0, 0.0, 1.0)
     glVertex3f(0.0, 0.0, -5.0)
     glVertex3f(0.0, 0.0, 5.0)
-
     glEnd()
 
 
 def example_object():
     glColor3f(1.0, 1.0, 1.0)
-
     quadric = gluNewQuadric()
     gluQuadricDrawStyle(quadric, GLU_LINE)
     glRotatef(90, 1.0, 0.0, 0.0)
     glRotatef(-90, 0.0, 1.0, 0.0)
-
     gluSphere(quadric, 1.5, 10, 10)
-
     glTranslatef(0.0, 0.0, 1.1)
     gluCylinder(quadric, 1.0, 1.5, 1.5, 10, 5)
     glTranslatef(0.0, 0.0, -1.1)
-
     glTranslatef(0.0, 0.0, -2.6)
     gluCylinder(quadric, 0.0, 1.0, 1.5, 10, 5)
     glTranslatef(0.0, 0.0, 2.6)
-
     glRotatef(90, 1.0, 0.0, 1.0)
     glTranslatef(0.0, 0.0, 1.5)
     gluCylinder(quadric, 0.1, 0.0, 1.0, 5, 5)
     glTranslatef(0.0, 0.0, -1.5)
     glRotatef(-90, 1.0, 0.0, 1.0)
-
     glRotatef(-90, 1.0, 0.0, 1.0)
     glTranslatef(0.0, 0.0, 1.5)
     gluCylinder(quadric, 0.1, 0.0, 1.0, 5, 5)
     glTranslatef(0.0, 0.0, -1.5)
     glRotatef(90, 1.0, 0.0, 1.0)
-
     glRotatef(90, 0.0, 1.0, 0.0)
     glRotatef(-90, 1.0, 0.0, 0.0)
     gluDeleteQuadric(quadric)
 
 
 def render(time):
-    global theta
+    global eye_x, eye_y, eye_z
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
 
-    gluLookAt(viewer[0], viewer[1], viewer[2],
-              0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    yaw_rad = math.radians(yaw)
+    pitch_rad = math.radians(pitch)
 
-    if left_mouse_button_pressed:
-        theta += delta_x * pix2angle
+    front_x = math.cos(yaw_rad) * math.cos(pitch_rad)
+    front_y = math.sin(pitch_rad)
+    front_z = math.sin(yaw_rad) * math.cos(pitch_rad)
 
-    glRotatef(theta, 0.0, 1.0, 0.0)
+    right_x = math.cos(yaw_rad - math.pi / 2.0)
+    right_z = math.sin(yaw_rad - math.pi / 2.0)
+
+    speed = 0.1
+    if keys[GLFW_KEY_W]:
+        eye_x += front_x * speed
+        eye_y += front_y * speed
+        eye_z += front_z * speed
+    if keys[GLFW_KEY_S]:
+        eye_x -= front_x * speed
+        eye_y -= front_y * speed
+        eye_z -= front_z * speed
+    if keys[GLFW_KEY_A]:
+        eye_x -= right_x * speed
+        eye_z -= right_z * speed
+    if keys[GLFW_KEY_D]:
+        eye_x += right_x * speed
+        eye_z += right_z * speed
+
+    gluLookAt(eye_x, eye_y, eye_z,
+              eye_x + front_x, eye_y + front_y, eye_z + front_z,
+              0.0, 1.0, 0.0)
 
     axes()
     example_object()
-
     glFlush()
 
 
 def update_viewport(window, width, height):
-    global pix2angle
-    pix2angle = 360.0 / width
-
+    if width == 0:
+        width = 1
+    if height == 0:
+        height = 1
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-
     gluPerspective(70, 1.0, 0.1, 300.0)
-
     if width <= height:
         glViewport(0, int((height - width) / 2), width, width)
     else:
         glViewport(int((width - height) / 2), 0, height, height)
-
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
@@ -121,14 +137,29 @@ def update_viewport(window, width, height):
 def keyboard_key_callback(window, key, scancode, action, mods):
     if key == GLFW_KEY_ESCAPE and action == GLFW_PRESS:
         glfwSetWindowShouldClose(window, GLFW_TRUE)
+    if key in keys:
+        if action == GLFW_PRESS:
+            keys[key] = True
+        elif action == GLFW_RELEASE:
+            keys[key] = False
 
 
 def mouse_motion_callback(window, x_pos, y_pos):
-    global delta_x
-    global mouse_x_pos_old
+    global mouse_x_pos_old, mouse_y_pos_old, yaw, pitch
 
     delta_x = x_pos - mouse_x_pos_old
+    delta_y = y_pos - mouse_y_pos_old
     mouse_x_pos_old = x_pos
+    mouse_y_pos_old = y_pos
+
+    if left_mouse_button_pressed:
+        yaw += delta_x * 0.2
+        pitch -= delta_y * 0.2
+
+        if pitch > 89.0:
+            pitch = 89.0
+        elif pitch < -89.0:
+            pitch = -89.0
 
 
 def mouse_button_callback(window, button, action, mods):
@@ -136,7 +167,7 @@ def mouse_button_callback(window, button, action, mods):
 
     if button == GLFW_MOUSE_BUTTON_LEFT and action == GLFW_PRESS:
         left_mouse_button_pressed = 1
-    else:
+    elif button == GLFW_MOUSE_BUTTON_LEFT and action == GLFW_RELEASE:
         left_mouse_button_pressed = 0
 
 
@@ -162,7 +193,6 @@ def main():
         glfwSwapBuffers(window)
         glfwPollEvents()
     shutdown()
-
     glfwTerminate()
 
 
