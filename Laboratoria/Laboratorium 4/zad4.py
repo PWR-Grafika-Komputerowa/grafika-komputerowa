@@ -4,7 +4,7 @@ from glfw.GLFW import *
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from math import cos, sin, pi
+from math import cos, sin, pi, radians, fmod
 
 #region zmienne
 viewer = [0.0, 0.0, 10.0]
@@ -14,7 +14,9 @@ phi=0.0
 R=5.0
 scale =1.0
 pix2angle = 1.0
-
+pix2angle = 1.0
+thetaObj = 0.0
+phiObj = 0.0   
 left_mouse_button_pressed = 0
 right_mouse_button_pressed = 0
 mouse_x_pos_old = 0
@@ -88,8 +90,8 @@ def example_object():
 
 #region render
 def render(time):
-    global theta
-    global phi
+    global theta, thetaObj
+    global phi,phiObj
     global R
     global scale
     global mode 
@@ -98,18 +100,23 @@ def render(time):
     glLoadIdentity()
 
 
-    if delta_x > 1.0 or delta_x < -1.0 or delta_y > 1.0 or delta_y < -1.0:
-        if left_mouse_button_pressed:
+    
+    if left_mouse_button_pressed:
+        if mode == "cam":  
             theta += delta_x * pix2angle
-            phi += delta_y * pix2angle
-        
-        if right_mouse_button_pressed:
-            if mode == "cam":  
-                R += (delta_x + delta_y) * 0.01
-            else:         
-                scale += (delta_x + delta_y) * 0.01
+            phi += delta_y * pix2angle2
+        else: 
+            thetaObj += delta_x * pix2angle
+            phiObj += delta_y * pix2angle2
 
     
+    if right_mouse_button_pressed:
+        if mode == "cam":  
+            R += (delta_x + delta_y) * 0.01
+        else:         
+            scale += (delta_x + delta_y) * 0.01
+
+    delta_y =  delta_x = 0.0
     if mode == "cam":
         if R < 0.0:
             R = 0.0
@@ -127,24 +134,21 @@ def render(time):
     elif phi < -89.0:
         phi = -89.0
 
-    if mode == "cam":  
-        thePI = (theta * (pi / 180.0)) % (2 * pi)
-        phiPi = (phi * (pi / 180.0)) % (2 * pi)
-        
-        x = R * cos(thePI) * cos(phiPi)
-        y = R * sin(phiPi)
-        z = R * sin(thePI) * cos(phiPi)
+    thePI = radians(fmod(theta, 360.0))
+    phiPi = radians(fmod(phi, 360.0))
 
-        gluLookAt(x, y, z, 
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+   
 
-    else:          
-        gluLookAt(viewer[0], viewer[1], viewer[2], 
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
         
-        glRotatef(theta, 0.0, 1.0, 0.0)
-        glRotatef(phi, 0.0, 0.0, 1.0)
-        glScalef(scale, scale, scale)
+    x = R * cos(thePI) * cos(phiPi)
+    y = R * sin(phiPi)
+    z = R * sin(thePI) * cos(phiPi)
+    gluLookAt(x, y, z, 
+              0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    
+    glRotatef(thetaObj, 0.0, 1.0, 0.0)
+    glRotatef(phiObj, 1.0, 0.0, 0.0)
+    glScalef(scale, scale, scale)
 
 
     axes()
@@ -154,8 +158,9 @@ def render(time):
 #endregion
 
 def update_viewport(window, width, height):
-    global pix2angle
+    global pix2angle, pix2angle2
     pix2angle = 360.0 / width
+    pix2angle2 = 360.0 / height
 
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()

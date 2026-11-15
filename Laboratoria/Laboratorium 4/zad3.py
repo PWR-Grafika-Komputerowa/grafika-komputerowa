@@ -4,7 +4,7 @@ from glfw.GLFW import *
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from math import cos, sin, pi
+from math import cos, sin, pi,radians
 
 #region zmienne
 viewer = [0.0, 0.0, 10.0]
@@ -14,7 +14,7 @@ phi=0.0
 R=5.0
 scale =1.0
 pix2angle = 1.0
-
+pix2angle2 = 1.0
 left_mouse_button_pressed = 0
 right_mouse_button_pressed = 0
 mouse_x_pos_old = 0
@@ -101,9 +101,10 @@ def render(time):
     
             if right_mouse_button_pressed:
                 R += (delta_x  + delta_y) *  0.01
+
                 
-    thePI = theta*(pi/180.0)
-    phiPi = phi*(pi/180.0)
+    thePI = radians(theta ) 
+    phiPi = radians(phi ) 
     
     x = R * cos(thePI) * cos(phiPi)
     y = R * sin(phiPi)
@@ -120,8 +121,9 @@ def render(time):
 #endregion
 
 def update_viewport(window, width, height):
-    global pix2angle
+    global pix2angle, pix2angle2 
     pix2angle = 360.0 / width
+    pix2angle2 = 360.0 / height
 
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()

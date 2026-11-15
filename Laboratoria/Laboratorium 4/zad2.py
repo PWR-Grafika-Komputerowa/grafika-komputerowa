@@ -12,6 +12,7 @@ theta = 0.0
 phi=0.0
 scale =1.0
 pix2angle = 1.0
+pix2angle2 = 1.0
 
 left_mouse_button_pressed = 0
 right_mouse_button_pressed = 0
@@ -97,13 +98,13 @@ def render(time):
     if delta_x >1.0 or delta_x < -1.0 or delta_y >1.0 or delta_y < -1.0:
         if left_mouse_button_pressed:
             theta += delta_x * pix2angle
-            phi += delta_y * pix2angle
+            phi += delta_y * pix2angle2
 
         if right_mouse_button_pressed:
             scale += (delta_x  + delta_y) *  0.01
 
     glRotatef(theta, 0.0, 1.0, 0.0)
-    glRotatef(phi, 0.0, 0.0, 1.0)
+    glRotatef(phi, 1.0, 0.0, 0.0)
     glScalef(scale,scale,scale)
 
     axes()
@@ -113,8 +114,9 @@ def render(time):
 #endregion
 
 def update_viewport(window, width, height):
-    global pix2angle
+    global pix2angle, pix2angle2 
     pix2angle = 360.0 / width
+    pix2angle2 = 360.0 / height
 
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()

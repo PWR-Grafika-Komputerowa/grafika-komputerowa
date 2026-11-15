@@ -97,7 +97,7 @@ def render(time):
         phi += delta_y * pix2angle2
 
     glRotatef(theta, 0.0, 1.0, 0.0)
-    glRotatef(phi, 0.0, 0.0, 1.0)
+    glRotatef(phi, 1.0, 0.0, 0.0)
 
     axes()
     example_object()
@@ -106,9 +106,9 @@ def render(time):
 
 
 def update_viewport(window, width, height):
-    global pix2angle
+    global pix2angle, pix2angle2 
     pix2angle = 360.0 / width
-
+    pix2angle2 = 360.0 / height
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
 
