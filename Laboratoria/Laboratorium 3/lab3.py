@@ -1,5 +1,7 @@
-#!/usr/bin/env python3
 import sys
+import math
+
+import numpy
 
 from glfw.GLFW import *
 
@@ -7,10 +9,31 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 
+N = 30
+tab = numpy.zeros((N, N, 3))
+
+
+def compute_egg():
+    u_values = numpy.linspace(0.0, 1.0, N)
+    v_values = numpy.linspace(0.0, 1.0, N)
+
+    for i in range(N):
+        for j in range(N):
+            u = u_values[i]
+            v = v_values[j]
+
+            poly = -90 * u ** 5 + 225 * u ** 4 - 270 * u ** 3 + 180 * u ** 2 - 45 * u
+
+            tab[i][j][0] = poly * math.cos(math.pi * v)
+            tab[i][j][1] = 160 * u ** 4 - 320 * u ** 3 + 160 * u ** 2 - 5
+            tab[i][j][2] = poly * math.sin(math.pi * v)
+
+
 def startup():
     update_viewport(None, 400, 400)
     glClearColor(0.0, 0.0, 0.0, 1.0)
     glEnable(GL_DEPTH_TEST)
+    compute_egg()
 
 
 def shutdown():
@@ -35,11 +58,21 @@ def axes():
     glEnd()
 
 
+def egg_points():
+    glColor3f(1.0, 1.0, 0.0)
+    glBegin(GL_POINTS)
+    for i in range(N):
+        for j in range(N):
+            glVertex3f(tab[i][j][0], tab[i][j][1], tab[i][j][2])
+    glEnd()
+
+
 def render(time):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
 
     axes()
+    egg_points()
 
     glFlush()
 
