@@ -7,8 +7,9 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 
-def startup():
-    update_viewport(None, 400, 400)
+def startup(window):
+    width, height = glfwGetFramebufferSize(window)
+    update_viewport(window, width, height)
     glClearColor(0.5, 0.5, 0.5, 1.0)
 
 
@@ -16,27 +17,39 @@ def shutdown():
     pass
 
 
+def draw_rectangle(x, y, a, b):
+    half_a = a / 2.0
+    half_b = b / 2.0
+
+    ax, ay = x - half_a, y - half_b
+    bx, by = x + half_a, y - half_b
+    cx, cy = x + half_a, y + half_b
+    dx, dy = x - half_a, y + half_b
+
+    glBegin(GL_TRIANGLES)
+    glVertex2f(ax, ay)
+    glVertex2f(bx, by)
+    glVertex2f(cx, cy)
+
+    glVertex2f(ax, ay)
+    glVertex2f(cx, cy)
+    glVertex2f(dx, dy)
+    glEnd()
+
+
+
+
 def render(time):
     glClear(GL_COLOR_BUFFER_BIT)
+    glColor3f(0.0, 0.5, 1.0)
 
-    glColor3f(0.0, 1.0, 0.0)
-    glBegin(GL_TRIANGLES)
-    glVertex2f(0.0, 0.0)
-    glVertex2f(0.0, 50.0)
-    glVertex2f(50.0, 0.0)
-    glEnd()
-
-    glColor3f(1.0, 0.0, 0.0)
-    glBegin(GL_TRIANGLES)
-    glVertex2f(0.0, 0.0)
-    glVertex2f(0.0, 50.0)
-    glVertex2f(-50.0, 0.0)
-    glEnd()
+    draw_rectangle(0.0, 0.0, 80.0, 40.0)
 
     glFlush()
 
 
 def update_viewport(window, width, height):
+    print("viewport:", width, height)
     if width == 0:
         width = 1
     if height == 0:
@@ -71,7 +84,7 @@ def main():
     glfwSetFramebufferSizeCallback(window, update_viewport)
     glfwSwapInterval(1)
 
-    startup()
+    startup(window)
     while not glfwWindowShouldClose(window):
         render(glfwGetTime())
         glfwSwapBuffers(window)
