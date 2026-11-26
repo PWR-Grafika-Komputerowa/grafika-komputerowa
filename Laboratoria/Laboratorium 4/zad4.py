@@ -92,7 +92,7 @@ def example_object():
 def render(time):
     global theta, thetaObj
     global phi,phiObj
-    global R
+    global R,delta_x,delta_y
     global scale
     global mode 
     
