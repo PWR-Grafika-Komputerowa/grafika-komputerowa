@@ -41,8 +41,17 @@ def compile_shaders():
             vec4(0.1, 0.8, 0.2, 1.0)     
         );
 
+        vec4 instance(int instanceID){
+        
+            int x = instanceID % 10;
+            int y = (instanceID /10 )%10;
+            int z = instanceID /100;
+
+            return vec4 (x-5,y-5,z-5,0);
+        }
+
         void main(void) {
-            gl_Position = P_matrix * V_matrix * M_matrix * position;
+            gl_Position = P_matrix * V_matrix * M_matrix * (position + instance(gl_InstanceID));
             vertex_color = colors[gl_VertexID / 6];
         }
     """
@@ -189,19 +198,10 @@ def render(time):
     glUniformMatrix4fv(M_location, 1, GL_FALSE, glm.value_ptr(M_matrix))
     glUniformMatrix4fv(V_location, 1, GL_FALSE, glm.value_ptr(V_matrix))
     glUniformMatrix4fv(P_location, 1, GL_FALSE, glm.value_ptr(P_matrix))
-    M_matrix = glm.translate(M_matrix, glm.vec3(5.0, 5.0, -5.0))
-    for z in range(10):
-        M_matrix = glm.translate(M_matrix, glm.vec3(0.0, -10.0, 1.0))
-        for j in range(10):
-            M_matrix = glm.translate(M_matrix, glm.vec3(-10.0, 1.0, 0.0))
-            for i in range(10):
-                M_matrix = glm.translate(M_matrix, glm.vec3(1.0, 0.0, 0.0))
-                glUniformMatrix4fv(M_location, 1, GL_FALSE, glm.value_ptr(M_matrix))
 
-                glDrawArrays(GL_TRIANGLES, 0, 36)
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 36,1000)
 
 
-    glDrawArrays(GL_TRIANGLES, 0, 36)
 
 
 def update_viewport(window, width, height):
